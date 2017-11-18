@@ -22,7 +22,7 @@
 import os
 import sys
 import json
-
+import time
 import key_AthenaIoT
 
 try:
@@ -38,14 +38,14 @@ def saveToAthena(sensor, metrics):
     try:
         data = {}
         data['type'] = 'metric'
-        data['iot']
+        data['id'] = sensor
         data['metrics'] = metrics
         data['timestamp'] = time.time()
-        fname = "{}/input/lorawan-{}.json".format(key_AthenaIoT.athenaDataDir, tstamp)
+        fname = "{}/input/lorawan-{}.json".format(key_AthenaIoT.athenaDataDir, data['timestamp'])
         with open(fname, 'w') as json_file:
             json.dump(data, json_file)
-    except IOError:
-        print "Unable to open file"
+    except IOError as e:
+        print "Unable to open file: {}".format(e)
 
 #------------------------------------------------------------
 # main
@@ -67,8 +67,13 @@ def main(ldata, pdata, rdata, tdata, gwid):
         inboundMetrics = ldata.split("#")
         outboundMetrics = {}
         for metric in inboundMetrics:
-            newMetric = metric.split(':')
-            outboundMetrics[newMetric[0]] = newMetric[1]
+            if metric != '':
+                newMetric = metric.split(':')
+                if len(newMetric) > 1:
+                    print "newMetric: {} / Val: {}".format(newMetric[0], newMetric[1])
+                    outboundMetrics[newMetric[0]] = newMetric[1]
+                else
+                    print "Bad Metric: {}".format(newMetric)
         outboundMetrics['rssi'] = RSSI
         outboundMetrics['snr'] = SNR
         saveToAthena(src, outboundMetrics)

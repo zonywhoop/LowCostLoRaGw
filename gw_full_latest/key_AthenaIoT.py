@@ -8,8 +8,8 @@ source_list=[]
 athenaDataDir = "config"
 
 if athenaDataDir == "config":
-    from subprocess import call
-    ret = call(["athena-config", "get", "athena.data_dir"], stdout=athenaDataDir)
-    if ret != 0:
+    from subprocess import check_output
+    athenaDataDir = check_output(["athena-config", "get", "athena.data_dir"]).rstrip("\n")
+    if athenaDataDir == "nil":
         print "ERROR: Failed retreiving AthenaIoT Data Dir"
         exit(1)
